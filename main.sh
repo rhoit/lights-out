@@ -76,7 +76,7 @@ function mouse_read_pos {
 
 function check_endgame { # $1: end game
     let "$1" && {
-        tput cup $offset_figlet_y 0; board_banner -c -w $COLUMNS $status
+        tput cup $offset_figlet_y 0; board_banner -c -w $_COLUMNS $status
         exit
     }
 
@@ -84,8 +84,8 @@ function check_endgame { # $1: end game
         [[ "${board[$i]}" == "1" ]] && return
     done
 
-    tput cup 9 0; board_banner -c -w $COLUMNS "COMPLETED"
-    tput cup $board_max_y $COLUMNS
+    tput cup 9 0; board_banner -c -w $_COLUMNS "COMPLETED"
+    tput cup $_max_y $_COLUMNS
     return 1
 }
 
@@ -113,7 +113,6 @@ function play_level { # $* board
         read
         return
     }
-
     ## set-loop variables
     mouse_x=0 mouse_y=0
 
@@ -126,9 +125,9 @@ function play_level { # $* board
         (( mouse_y < offset_y + 1 )) && continue
         (( mouse_y > _max_y - 1 )) && continue
 
-        let row="(mouse_y - offset_y - 1) / (_tile_height + 1)"
-        let col="(mouse_x - offset_x - 1) / (_tile_width + 1)"
-        let index="row * BOARD_SIZE + col"
+        local row=$(( (mouse_y - offset_y - 1) / (_tile_height + 1) ))
+        local col=$(( (mouse_x - offset_x - 1) / (_tile_width + 1) ))
+        local index=$(( row * BOARD_SIZE + col ))
         >&3 echo row: $row col: $col index: $index
 
         sep_x=$((offset_x + _tile_width * col + col + 1))
@@ -139,17 +138,17 @@ function play_level { # $* board
 
         let board[index]=board[index]?0:1
 
-        let t="$index - $board_size"
-        let r="$index + 1"
-        let b="$index + $board_size"
-        let l="$index - 1"
+        local t=$((index - board_size))
+        local r=$((index + 1))
+        local b=$((index + board_size))
+        local l=$((index - 1))
 
         (( 0 <= t )) && let board[t]=board[t]?0:1
         (( row == r/board_size )) && let board[r]=board[r]?0:1
         (( N > b )) && let board[b]=board[b]?0:1
         (( 0 <= l && row == l/board_size )) && let board[l]=board[l]?0:1
 
-        let moves++
+        let moves++ && :
         board_tput_status; status
         check_endgame || return
     done
@@ -163,6 +162,7 @@ echo -n $'\e'"[?9h" # enable-mouse
 exec 2>&3 # redirecting errors
 
 LMAX=$(cat $WD/levels | wc -l)
+# set -xe
 for ((level=LEVEL; level<=$LMAX; level++)); do
     clear
     specs=$(sed -n "${level}p" $WD/levels)
