@@ -45,7 +45,7 @@ implimentation of classing lights out puzzle.
 
 * Reference
 
-  https://en.wikipedia.org/wiki/Lights_Out_(game)
-  https://cran.r-project.org/web/packages/lightsout/vignettes/overview.html
-  http://www.ueda.info.waseda.ac.jp/~n-kato/lightsout/
-  https://www.khanacademy.org/math/math-for-fun-and-glory/puzzles/lights-puzzles
+  - https://en.wikipedia.org/wiki/Lights_Out_(game)
+  - https://cran.r-project.org/web/packages/lightsout/vignettes/overview.html
+  - http://www.ueda.info.waseda.ac.jp/~n-kato/lightsout/
+  - https://www.khanacademy.org/math/math-for-fun-and-glory/puzzles/lights-puzzles
