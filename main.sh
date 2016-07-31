@@ -130,11 +130,12 @@ function play_level { # $* board
         local index=$(( row * BOARD_SIZE + col ))
         >&3 echo row: $row col: $col index: $index
 
-        sep_x=$((offset_x + _tile_width * col + col + 1))
-        sep_y=$((offset_y + _tile_height * ( row + 1 ) + 1))
-        >&3 echo sep_x: $sep_x sep_y: $sep_y
-        (( mouse_x == sep_x )) && continue
-        (( mouse_y == sep_y )) && continue
+        # separator mouse ignore
+        # sep_x=$((offset_x + _tile_width * col + col + 1))
+        # sep_y=$((offset_y + _tile_height * ( row + 1 ) + 1))
+        # >&3 echo sep_x: $sep_x sep_y: $sep_y
+        # (( mouse_x == sep_x )) && continue
+        # (( mouse_y == sep_y )) && continue
 
         let board[index]=board[index]?0:1
 
