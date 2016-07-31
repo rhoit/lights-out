@@ -76,7 +76,7 @@ function mouse_read_pos {
 
 function check_endgame { # $1: end game
     let "$1" && {
-        tput cup $offset_figlet_y 0; board_banner "GAME OVER"
+        board_banner "GAME OVER"
         exit
     }
 
@@ -84,7 +84,7 @@ function check_endgame { # $1: end game
         [[ "${board[$i]}" == "1" ]] && return
     done
 
-    tput cup 9 0; board_banner "COMPLETED"
+    board_banner "COMPLETED"
     return 1
 }
 
