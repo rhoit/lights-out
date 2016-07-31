@@ -32,8 +32,6 @@ while true; do
     esac
 done
 
-exec 2>&3 # redirecting errors
-
 # extra argument
 for arg do
     LEVEL=$arg
@@ -93,8 +91,10 @@ function check_endgame { # $1: end game
 
 
 function status {
-    printf "moves: %-9d" $moves
-    echo
+	printf "level: %-9s" "$level/$LMAX"
+	printf "score: %-9d" "$score"
+	printf "moves: %-9d" "$moves"
+	echo
 }
 
 
@@ -122,14 +122,20 @@ function play_level { # $* board
         board_update
         key_react
         (( mouse_x < offset_x + 2 )) && continue
-        (( mouse_x > _max_x - 2 )) && continue
-        (( mouse_y < offset_y + 2 )) && continue
+        (( mouse_x > _max_x )) && continue
+        (( mouse_y < offset_y + 1 )) && continue
         (( mouse_y > _max_y - 1 )) && continue
 
         let row="(mouse_y - offset_y - 1) / (_tile_height + 1)"
         let col="(mouse_x - offset_x - 1) / (_tile_width + 1)"
         let index="row * BOARD_SIZE + col"
         >&3 echo row: $row col: $col index: $index
+
+        sep_x=$((offset_x + _tile_width * col + col + 1))
+        sep_y=$((offset_y + _tile_height * ( row + 1 ) + 1))
+        >&3 echo sep_x: $sep_x sep_y: $sep_y
+        (( mouse_x == sep_x )) && continue
+        (( mouse_y == sep_y )) && continue
 
         let board[index]=board[index]?0:1
 
@@ -141,7 +147,7 @@ function play_level { # $* board
         (( 0 <= t )) && let board[t]=board[t]?0:1
         (( row == r/board_size )) && let board[r]=board[r]?0:1
         (( N > b )) && let board[b]=board[b]?0:1
-        (( 0 < l && row == l/board_size )) && let board[l]=board[l]?0:1
+        (( 0 <= l && row == l/board_size )) && let board[l]=board[l]?0:1
 
         let moves++
         board_tput_status; status
@@ -149,11 +155,12 @@ function play_level { # $* board
     done
 }
 
-declare score=0
+declare score=100
 trap "check_endgame 1; exit" INT #handle INTTRUPT
 let N="BOARD_SIZE * BOARD_SIZE"
 board_init $BOARD_SIZE
 echo -n $'\e'"[?9h" # enable-mouse
+exec 2>&3 # redirecting errors
 
 LMAX=$(cat $WD/levels | wc -l)
 for ((level=LEVEL; level<=$LMAX; level++)); do
@@ -165,4 +172,5 @@ for ((level=LEVEL; level<=$LMAX; level++)); do
     >&3 echo level:$level "($specs)"
     echo -e $header
     play_level ${specs[@]}
+    let score-=moves
 done
