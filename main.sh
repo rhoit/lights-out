@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 __PKG_NAME__="lights-out-puzzle"
 
@@ -7,20 +7,21 @@ function Usage {
     echo -e "\t-b | --board\tboard size"
     echo -e "\t-d | --debug [FILE]\tdebug info to file provided"
     echo -e "\t-h | --help\tDisplay this message"
+    echo -e "\t-v | --version\t\tversion information"
 }
 
-GETOPT=$(getopt -o b:d:h\
-              -l board:,debug,help\
-              -n "$__PKG_NAME__"\
-              -- "$@")
+GETOPT=$(getopt -o b:d:hv \
+                -l board:,debug:,help,version \
+                -n "$__PKG_NAME__" \
+                -- "$@")
 
-if [ $? != "0" ]; then exit 1; fi
+[[ $? != "0" ]] && exit 1
 
 eval set -- "$GETOPT"
 
+export WD="$(dirname $(readlink $0 || echo $0))"
 BOARD_SIZE=5
 LEVEL=1
-export WD="$(dirname $(readlink $0 || echo $0))"
 exec 3>/dev/null
 
 while true; do
@@ -45,7 +46,7 @@ header="\033[1m$__PKG_NAME__\033[m (https://github.com/rhoit/lights-out)"
 colors[0]="\e[8m"
 colors[1]="\e[8;47m"
 
-export WD_BOARD=$WD/ASCII-board
+export WD_BOARD="$WD/ASCII-board"
 source $WD_BOARD/board.sh
 
 
@@ -74,11 +75,11 @@ function mouse_read_pos {
 }
 
 
-function check_endgame { # $1: end game
-    let "$1" && {
+function check_endgame { # $1: force end flag
+    if (( "$1" == 0 )); then
         board_banner "GAME OVER"
         exit
-    }
+    fi
 
     for ((i=N-1; i > 0; i--)); do
         [[ "${board[$i]}" == "1" ]] && return
@@ -154,8 +155,8 @@ function play_level { # $* board
     done
 }
 
-declare score=100
-trap "check_endgame 1; exit" INT #handle INTTRUPT
+declare score=$((101 - 2 * $LEVEL))
+trap "check_endgame 0; exit" INT #handle INTERRUPT
 let N="BOARD_SIZE * BOARD_SIZE"
 board_init $BOARD_SIZE
 echo -n $'\e'"[?9h" # enable-mouse
