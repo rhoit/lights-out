@@ -75,13 +75,8 @@ function mouse_read_pos {
 }
 
 
-function check_endgame { # $1: force end flag
-    if (( "$1" == 0 )); then
-        board_banner "GAME OVER"
-        exit
-    fi
-
-    for ((i=N-1; i > 0; i--)); do
+function check_endgame {
+    for ((i=0; i < N; i++)); do
         [[ "${board[$i]}" == "1" ]] && return
     done
 
@@ -156,7 +151,7 @@ function play_level { # $* board
 }
 
 declare score=$((101 - 2 * $LEVEL))
-trap "check_endgame 0; exit" INT #handle INTERRUPT
+trap "board_banner 'GAME OVER'; exit" INT #handle INTERRUPT
 let N="BOARD_SIZE * BOARD_SIZE"
 board_init $BOARD_SIZE
 echo -n $'\e'"[?9h" # enable-mouse
