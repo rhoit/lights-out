@@ -46,7 +46,7 @@ header="\033[1m$__PKG_NAME__\033[m (https://github.com/rhoit/lights-out)"
 colors[0]="\e[8m"
 colors[1]="\e[8;47m"
 
-export WD_BOARD="$WD/ASCII-board"
+export WD_BOARD=${WD_BOARD:-"$WD/ASCII-board"}
 source $WD_BOARD/board.sh
 
 
@@ -103,8 +103,7 @@ function play_level { # $* board
 
     test -z $NOPLAY || {
         board_update
-        echo
-        echo "PRESS ENTER TO SEE NEXT LEVEL"
+        echo -e "\nPRESS ENTER TO SEE NEXT LEVEL"
         read
         return
     }
@@ -152,7 +151,7 @@ function play_level { # $* board
 
 declare score=$((101 - 2 * $LEVEL))
 trap "board_banner 'GAME OVER'; exit" INT #handle INTERRUPT
-let N="BOARD_SIZE * BOARD_SIZE"
+N=$((BOARD_SIZE*BOARD_SIZE))
 board_init $BOARD_SIZE
 echo -n $'\e'"[?9h" # enable-mouse
 exec 2>&3 # redirecting errors
